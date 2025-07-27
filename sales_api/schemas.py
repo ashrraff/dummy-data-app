@@ -18,7 +18,7 @@ class Customer(CustomerBase):
     id: int = Field(..., description="Unique identifier for the customer.")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Product Schemas
@@ -51,7 +51,7 @@ class Product(ProductBase):
     id: int = Field(..., description="Unique identifier for the product.")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Sale Schemas
@@ -60,10 +60,7 @@ class SaleBase(BaseModel):
 
     customer_id: int = Field(..., description="ID of the customer making the sale.")
     product_id: int = Field(..., description="ID of the product sold.")
-    quantity: int = Field(
-        ...,
-        gt=0,
-        description="Number of units of the product sold."
+    quantity: int = Field(..., gt=0, description="Number of units of the product sold."
     )
 
 class SaleCreate(SaleBase):
@@ -73,8 +70,8 @@ class SaleCreate(SaleBase):
 class Sale(SaleBase):
 
     id: int = Field(..., description="Unique identifier for the sale.")
-    total_price: float = Field(..., description="Calculated total price of the sale.")
+    # total_price: float = Field(..., description="Calculated total price of the sale.")
     timestamp: datetime = Field(..., description="Timestamp of when the sale occurred.")
 
     class Config:
-        orm_mode = True
+        from_attributes = True

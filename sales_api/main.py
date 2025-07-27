@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from . import models, schemas, database
 
+models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Sales API")
 
@@ -15,7 +16,7 @@ def get_db():
 # Customers
 
 @app.post("/customers", response_model=schemas.Customer)
-def create_customer(customer: schemas.Customer, db: Session = Depends(get_db)):
+def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
     db_customer = db.query(models.Customer).filter(models.Customer.email == customer.email).first()
     if db_customer:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -58,8 +59,7 @@ def create_sale(sale: schemas.SaleCreate, db: Session = Depends(get_db)):
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
 
-    total_price = product.price * sale.quantity
-    new_sale = models.Sale(**sale.model_dump(), total_price=total_price)
+    new_sale = models.Sale(**sale.model_dump())
     db.add(new_sale)
     db.commit()
     db.refresh(new_sale)
@@ -68,10 +68,20 @@ def create_sale(sale: schemas.SaleCreate, db: Session = Depends(get_db)):
 
 @app.get("/sales", response_model=list[schemas.Sale])
 def list_sales(db: Session = Depends(get_db)):
-    sales_list = db.query(models.Sale).options(joinedload(models.Product)).all()
+    sales_list = db.query(models.Sale).options(joinedload(models.Sale.products)).all()
+    response_sales = []
     for sale in sales_list:
-        if sale.product:
-            sale.total_price = sale.product.price * sale.quantity
-        else:
-            sale.total_price = 0.0
-    return db.query(models.Sale).all()
+        total_price = 0
+        if sale.products: # Ensure the product was loaded and exists for this sale
+            total_price = sale.products.price * sale.quantity
+
+        # Manually create an instance of SaleGet, passing all necessary fields
+        response_sales.append(schemas.Sale(
+            id=sale.id,
+            customer_id=sale.customer_id,
+            product_id=sale.product_id,
+            quantity=sale.quantity,
+            timestamp=sale.timestamp,
+            total_price=total_price))
+        
+    return response_sales
