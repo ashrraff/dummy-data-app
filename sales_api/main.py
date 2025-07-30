@@ -2,6 +2,14 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from . import models, schemas, database
 
+
+# app = FastAPI()
+
+# @app.get("/")
+# def read_root():
+#     return {"Hello": "World"}
+
+
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Sales API")
@@ -25,6 +33,14 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     db.commit()
     db.refresh(new_customer)
     return new_customer
+
+@app.get("/customers/{customer_id}", response_model=schemas.Customer)
+def get_customer(customer_id: int, db: Session = Depends(get_db)):
+    customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer
+
 
 @app.get("/customers", response_model=list[schemas.Customer])
 def list_customers(db: Session = Depends(get_db)):
