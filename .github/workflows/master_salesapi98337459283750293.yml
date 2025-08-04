@@ -28,6 +28,9 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
+
+      - name: Preinstall Cython (to fix Pyjnius)
+        run: pip install cython==3.1.2
       
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -68,4 +71,5 @@ jobs:
         with:
           app-name: 'salesapi98337459283750293'
           slot-name: 'Production'
+
           
