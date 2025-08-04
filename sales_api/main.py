@@ -3,14 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from . import models, schemas, database
 
 
-# app = FastAPI()
-
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "World"}
-
-
-# models.Base.metadata.create_all(bind=database.engine)
+models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Sales API")
 
