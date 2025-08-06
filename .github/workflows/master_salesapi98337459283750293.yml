@@ -22,13 +22,21 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.11'
 
       - name: Create and start virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+
+      - name: Upgrade pip and install build tools
+        run: |
+          pip install --upgrade pip
+          pip install setuptools wheel cython==3.1.2
+
+      - name: Install jnius
+        run: pip install --no-build-isolation --no-cache-dir jnius==1.1.0
+
       - name: Install dependencies
         run: pip install -r requirements.txt
         
@@ -58,9 +66,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E28F72B1813488D8D6A3C313668B232 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FCA5DFB1E20747B3AA3FD269AA43EE27 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_46467B198CCD41F1BFE42AB7BFD463B1 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A433CFBBB76E436CB68C77276F1A1D29 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4D09A1C9FCCA4652922E6011763C1BBF }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E7DDEACF007E4727A8617251EB898AF3 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -68,4 +76,10 @@ jobs:
         with:
           app-name: 'salesapi98337459283750293'
           slot-name: 'Production'
+
           
+
+
+
+
+
